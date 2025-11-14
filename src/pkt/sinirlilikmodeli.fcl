@@ -1,0 +1,72 @@
+FUNCTION_BLOCK sinirlilikmodeli
+
+VAR_INPUT
+	sekermiktari : REAL;
+	cinsiyet : REAL;
+	yas : REAL;
+END_VAR
+
+VAR_OUTPUT 
+ 	sinirlilikseviyesi : REAL; 
+END_VAR
+
+FUZZIFY yas
+    TERM bebek := (0,1) (3,1) (5,0);
+    TERM cocuk := (4,0) (6,1) (10,0);
+    TERM ergen := (9,0) (12,1) (16,1);
+END_FUZZIFY
+
+FUZZIFY sekermiktari
+    TERM dusuk  := (0,1) (11,0);
+    TERM orta   := (9,0) (15,1) (20,0);
+    TERM yuksek := (18,0) (25,1) (30,1);
+END_FUZZIFY
+
+
+FUZZIFY cinsiyet
+	TERM erkek := (0,1) (1,0);
+	TERM kiz   := (0,0) (1,1);
+END_FUZZIFY
+
+
+
+
+DEFUZZIFY sinirlilikseviyesi
+    TERM coksakin := (0,1) (10,1) (20,0);
+    TERM sakin := (10,0) (25,1) (40,0);
+    TERM normal := (30,0) (50,1) (60,0);
+    TERM sinirli := (50,0) (65,1) (80,0);
+    TERM coksinirli := (70,0) (85,1) (100,1);
+
+	METHOD : COG;
+	DEFAULT := 0;
+END_DEFUZZIFY
+
+
+RULEBLOCK kuralblok1
+	AND : MIN;
+	ACT : MIN;
+	ACCU : MAX;
+
+	RULE 1  : IF sekermiktari IS dusuk AND yas IS bebek AND cinsiyet IS erkek THEN sinirlilikseviyesi IS normal;
+	RULE 2  : IF sekermiktari IS dusuk AND yas IS bebek AND cinsiyet IS kiz    THEN sinirlilikseviyesi IS sinirli;
+	RULE 3  : IF sekermiktari IS dusuk AND yas IS cocuk AND cinsiyet IS erkek THEN sinirlilikseviyesi IS sakin;
+	RULE 4  : IF sekermiktari IS dusuk AND yas IS cocuk AND cinsiyet IS kiz    THEN sinirlilikseviyesi IS normal;
+	RULE 5  : IF sekermiktari IS dusuk AND yas IS ergen AND cinsiyet IS erkek THEN sinirlilikseviyesi IS normal;
+	RULE 6  : IF sekermiktari IS dusuk AND yas IS ergen AND cinsiyet IS kiz    THEN sinirlilikseviyesi IS sinirli;
+	RULE 7  : IF sekermiktari IS orta AND yas IS bebek AND cinsiyet IS erkek THEN sinirlilikseviyesi IS sinirli;
+	RULE 8  : IF sekermiktari IS orta AND yas IS bebek AND cinsiyet IS kiz    THEN sinirlilikseviyesi IS coksinirli;
+	RULE 9  : IF sekermiktari IS orta AND yas IS cocuk AND cinsiyet IS erkek THEN sinirlilikseviyesi IS normal;
+	RULE 10 : IF sekermiktari IS orta AND yas IS cocuk AND cinsiyet IS kiz    THEN sinirlilikseviyesi IS sinirli;
+	RULE 11 : IF sekermiktari IS orta AND yas IS ergen AND cinsiyet IS erkek THEN sinirlilikseviyesi IS sinirli;
+	RULE 12 : IF sekermiktari IS orta AND yas IS ergen AND cinsiyet IS kiz    THEN sinirlilikseviyesi IS coksinirli;
+	RULE 13 : IF sekermiktari IS yuksek AND yas IS bebek AND cinsiyet IS erkek THEN sinirlilikseviyesi IS coksinirli;
+	RULE 14 : IF sekermiktari IS yuksek AND yas IS bebek AND cinsiyet IS kiz    THEN sinirlilikseviyesi IS coksinirli;
+	RULE 15 : IF sekermiktari IS yuksek AND yas IS cocuk AND cinsiyet IS erkek THEN sinirlilikseviyesi IS sinirli;
+	RULE 16 : IF sekermiktari IS yuksek AND yas IS cocuk AND cinsiyet IS kiz    THEN sinirlilikseviyesi IS coksinirli;
+	RULE 17 : IF sekermiktari IS yuksek AND yas IS ergen AND cinsiyet IS erkek THEN sinirlilikseviyesi IS coksinirli;
+	RULE 18 : IF sekermiktari IS yuksek AND yas IS ergen AND cinsiyet IS kiz    THEN sinirlilikseviyesi IS coksinirli;
+
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
