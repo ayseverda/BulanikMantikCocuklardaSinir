@@ -8,21 +8,18 @@ public class sinirlilikseviyesi {
 	private double yas;
 	private double cinsiyet;
 	
-	public sinirlilikseviyesi(double sekermiktari, double yas, double cinsiyet) throws URISyntaxException{
-	{
+	public sinirlilikseviyesi(double sekermiktari, double yas, double cinsiyet) throws URISyntaxException {
 		this.sekermiktari = sekermiktari;
-		this.yas= yas;
+		this.yas = yas;
 		this.cinsiyet = cinsiyet;
 				
 		File dosya = new File(getClass().getResource("sinirlilikmodeli.fcl").toURI());
 		fis = FIS.load(dosya.getPath());
-		fis.setVariable("sekermiktari",sekermiktari);
-		fis.setVariable("yas",yas);
-		fis.setVariable("cinsiyet",cinsiyet);
+		fis.setVariable("sekermiktari", sekermiktari);
+		fis.setVariable("yas", yas);
+		fis.setVariable("cinsiyet", cinsiyet);
 		
 		fis.evaluate();
-		}
-	
 	}
 	public FIS getModel() {
 		return fis;
