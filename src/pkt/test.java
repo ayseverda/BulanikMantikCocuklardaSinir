@@ -25,11 +25,9 @@ public class test {
                         new sinirlilikseviyesi(sekermiktari, yas, cinsiyet);
 
                 System.out.println(sinirlilikseviyesih);
-                
-                // Tüm modelin grafiğini göster
+              
                 JFuzzyChart.get().chart(sinirlilikseviyesih.getModel());
                 
-                // Sadece çıktı değişkeninin (sinirlilikseviyesi) taralı alan grafiğini göster
                 Variable outputVar = sinirlilikseviyesih.getModel().getVariable("sinirlilikseviyesi");
                 Defuzzifier defuzzifier = outputVar.getDefuzzifier();
                 JFuzzyChart.get().chart(defuzzifier, "sinirlilikseviyesi - Taralı Alan", true);
