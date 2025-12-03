@@ -1,0 +1,13 @@
+Neuroph 2.98 Release Notes
+
+Neuroph 2.98 is a maintainance release and comes with various API improvements, cleanup of unstable features and bugfixes.
+It continues the integration/support for Java Visual Recognition API JSR381.
+
+Neuroph will continue it's development primaraly as educational software platform, and that might also include license switch to GPL.
+
+For existing Neuroph users who might need more advanced features and professional support we recommend to take a look at Deep Netts Platform https://deepnetts.com 
+Deep Netts Platform is built on same philosophy as Neuroph to create intuitive easy-to-use neural network/deep learning environment for software developers,
+and more advanced features and implementation. The future releases of Neuroph will include deep netts community edition, in order to 
+provide better support for convolutional networks for image recognition.
+
+

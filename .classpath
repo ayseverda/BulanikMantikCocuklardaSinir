@@ -6,11 +6,12 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/aysee/Downloads/jFuzzyLogic.jar"/>
-	<classpathentry kind="lib" path="C:/Users/aysee/Downloads/neuroph-2.98/Framework/neuroph-core-2.98.jar"/>
-	<classpathentry kind="lib" path="C:/Users/aysee/Downloads/neuroph-2.98/Framework/neuroph-contrib-2.98.jar"/>
-	<classpathentry kind="lib" path="C:/Users/aysee/Downloads/neuroph-2.98/Framework/libs/visrec-api-1.0.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/aysee/Downloads/neuroph-2.98/Framework/libs/slf4j-api-1.7.5.jar"/>
-	<classpathentry kind="lib" path="C:/Users/aysee/Downloads/neuroph-2.98/Framework/libs/slf4j-nop-1.7.6.jar"/>
+	<classpathentry kind="lib" path="Lib/neuroph-2.98.zip"/>
+	<classpathentry kind="lib" path="Lib/jFuzzyLogic.jar"/>
+	<classpathentry kind="lib" path="Lib/Framework/libs/slf4j-nop-1.7.6.jar"/>
+	<classpathentry kind="lib" path="Lib/Framework/libs/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="Lib/Framework/libs/visrec-api-1.0.0.jar"/>
+	<classpathentry kind="lib" path="Lib/Framework/neuroph-contrib-2.98.jar"/>
+	<classpathentry kind="lib" path="Lib/Framework/neuroph-core-2.98.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

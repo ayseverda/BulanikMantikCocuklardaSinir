@@ -5,6 +5,13 @@ import org.neuroph.core.data.DataSetRow;
 import org.neuroph.nnet.MultiLayerPerceptron;
 import org.neuroph.nnet.learning.MomentumBackpropagation;
 
+// >>> GRAFİK İÇİN EKLENEN IMPORTLAR
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+
 import java.util.*;
 
 public class TrainKFold {
@@ -36,6 +43,10 @@ public class TrainKFold {
 
             double sumTrainMse = 0.0;
             double sumTestMse  = 0.0;
+
+            // >>> GRAFİK İÇİN HATA LİSTELERİ
+            List<Double> foldTrainMseList = new ArrayList<>();
+            List<Double> foldTestMseList  = new ArrayList<>();
 
             System.out.println("\nK-Fold Cross Validation (K = " + k + ", momentumlu BP, topoloji: 3-20-1)");
             System.out.println("Fold\tTrain MSE\tTest MSE");
@@ -73,6 +84,10 @@ public class TrainKFold {
                 sumTrainMse += trainMse;
                 sumTestMse  += testMse;
 
+                // >>> GRAFİK İÇİN LİSTELERE EKLE
+                foldTrainMseList.add(trainMse);
+                foldTestMseList.add(testMse);
+
                 System.out.println((fold + 1) + "\t" + trainMse + "\t" + testMse);
             }
 
@@ -81,6 +96,27 @@ public class TrainKFold {
 
             System.out.println("\nOrtalama Eğitim Hatası (MSE): " + avgTrain);
             System.out.println("Ortalama Test Hatası (MSE):   " + avgTest);
+
+            // >>> K-FOLD GRAFİĞİ
+            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+            for (int i = 0; i < k; i++) {
+                String foldName = "Fold " + (i + 1);
+                dataset.addValue(foldTrainMseList.get(i), "Train MSE", foldName);
+                dataset.addValue(foldTestMseList.get(i),  "Test MSE",  foldName);
+            }
+
+            JFreeChart chart = ChartFactory.createBarChart(
+                    "K-Fold Sonuçları (Momentumlu, 3-" + HIDDEN_NEURONS + "-1)",
+                    "Fold",
+                    "MSE",
+                    dataset,
+                    PlotOrientation.VERTICAL,
+                    true, true, false
+            );
+
+            ChartFrame frame = new ChartFrame("K-Fold MSE Grafiği", chart);
+            frame.pack();
+            frame.setVisible(true);
 
         } catch (Exception e) {
             e.printStackTrace();
