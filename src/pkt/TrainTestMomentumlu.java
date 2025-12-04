@@ -16,6 +16,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 import javax.swing.JFrame;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,7 +85,9 @@ public class TrainTestMomentumlu {
             System.out.println();
             System.out.println("Momentumlu 10 deneme sonunda EN İYİ topoloji: 3-"
                     + bestHidden + "-1 (Test MSE = " + bestTestMse + ")");
-            System.out.println("Bu topoloji, menüdeki momentumlu eğitim/test seçeneğinde sabit olarak kullanılmaktadır.\n");
+         
+            // En iyi topolojiyi dosyaya kaydet
+            saveBestTopology("best_topology_momentumlu.txt", bestHidden);
 
             // 10 momentumlu ağ için epoch–MSE grafiği
             JFreeChart chart = ChartFactory.createXYLineChart(
@@ -100,7 +104,7 @@ public class TrainTestMomentumlu {
             ChartPanel chartPanel = new ChartPanel(chart);
 
             JFrame frame = new JFrame("Epoch - MSE (Momentumlu)");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.setContentPane(chartPanel);
             frame.pack();
             frame.setLocationRelativeTo(null);
@@ -153,5 +157,74 @@ public class TrainTestMomentumlu {
         }
 
         return totalError / count;
+    }
+
+    // En iyi topolojiyi dosyaya kaydet
+    private static void saveBestTopology(String filename, int hiddenNeurons) {
+        try {
+            PrintWriter pw = new PrintWriter(new FileWriter(filename));
+            pw.println(hiddenNeurons);
+            pw.close();
+        } catch (Exception e) {
+            System.out.println("Uyarı: En iyi topoloji dosyaya kaydedilemedi: " + e.getMessage());
+        }
+    }
+
+    // Grafik göstermeden sadece test yapıp en iyi topolojiyi bul ve kaydet (MainMenu için)
+    public static int findBestTopology(boolean showProgress) {
+        try {
+            DataSet training = loadDataset("training.csv");
+            DataSet test = loadDataset("test.csv");
+
+            int[] hiddenNeuronsList = {3, 4, 5, 6, 7, 8, 10, 12, 15, 20};
+
+            if (showProgress) {
+                System.out.println("Topoloji\tTrain MSE\tTest MSE (Momentumlu)");
+            }
+
+            double bestTestMse = Double.MAX_VALUE;
+            int bestHidden = -1;
+
+            for (int hidden : hiddenNeuronsList) {
+                MultiLayerPerceptron net = new MultiLayerPerceptron(3, hidden, 1);
+
+                MomentumBackpropagation rule = new MomentumBackpropagation();
+                rule.setLearningRate(0.1);
+                rule.setMomentum(0.7);
+                rule.setMaxIterations(300);
+
+                net.setLearningRule(rule);
+
+                if (showProgress) {
+                    System.out.println("Ağ eğitiliyor (momentumlu) - 3-" + hidden + "-1 ...");
+                }
+                net.learn(training);
+
+                double trainError = rule.getTotalNetworkError();
+                double testError = testNetwork(net, test);
+
+                if (showProgress) {
+                    System.out.println("3-" + hidden + "-1\t" + trainError + "\t" + testError);
+                }
+
+                if (testError < bestTestMse) {
+                    bestTestMse = testError;
+                    bestHidden = hidden;
+                }
+            }
+
+            if (showProgress) {
+                System.out.println();
+                System.out.println("Momentumlu 10 deneme sonunda EN İYİ topoloji: 3-"
+                        + bestHidden + "-1 (Test MSE = " + bestTestMse + ")");
+            }
+
+            saveBestTopology("best_topology_momentumlu.txt", bestHidden);
+            return bestHidden;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 }

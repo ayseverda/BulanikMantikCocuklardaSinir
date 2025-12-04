@@ -17,29 +17,37 @@ import javax.swing.JFrame;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 public class TrainEpochGoster {
 
-    // En iyi momentumsuz topoloji: 3-12-1
     private static final int INPUT_NEURONS = 3;
-    private static final int HIDDEN_NEURONS = 12;
     private static final int OUTPUT_NEURONS = 1;
+    private static final int DEFAULT_HIDDEN = 12; // Varsayılan değer
 
     public static void main(String[] args) {
         try {
+            // En iyi momentumsuz topolojiyi dosyadan oku
+            int hiddenNeurons = loadTopologyFromFile("best_topology_momentumsuz.txt");
+            if (hiddenNeurons <= 0) {
+                hiddenNeurons = DEFAULT_HIDDEN; // Dosya yoksa varsayılan
+            }
+
             DataSet training = TrainTestMomentumlu.loadDataset("training.csv");
             DataSet test = TrainTestMomentumlu.loadDataset("test.csv");
 
             System.out.println("Epoch bazlı eğitim (momentumsuz BP) başlatılıyor...");
-            System.out.println("Kullanılan topoloji: 3-" + HIDDEN_NEURONS + "-1");
+            System.out.println("Kullanılan topoloji: 3-" + hiddenNeurons + "-1");
             System.out.println("Bu topoloji, 10 farklı momentumsuz ağ denemesi arasından "
                     + "en düşük test MSE'yi verdiği için seçilmiştir.\n");
 
             MultiLayerPerceptron network =
-                    new MultiLayerPerceptron(INPUT_NEURONS, HIDDEN_NEURONS, OUTPUT_NEURONS);
+                    new MultiLayerPerceptron(INPUT_NEURONS, hiddenNeurons, OUTPUT_NEURONS);
 
             BackPropagation rule = new BackPropagation();
             rule.setLearningRate(0.1);
-            rule.setMaxIterations(10);   // Kaç epoch göstermek istiyorsan burayı değiştir
+            rule.setMaxIterations(100);   
 
             List<Double> trainErrors = new ArrayList<>();
             List<Double> testErrors  = new ArrayList<>();
@@ -91,7 +99,7 @@ public class TrainEpochGoster {
             dataset.addSeries(testSeries);
 
             JFreeChart chart = ChartFactory.createXYLineChart(
-                    "Seçilen Topoloji için Epoch-MSE Grafiği",
+                    "Seçilen Topoloji için Epoch-MSE Grafiği (Momentumsuz)",
                     "Epoch",
                     "MSE",
                     dataset,
@@ -102,8 +110,8 @@ public class TrainEpochGoster {
             );
 
             ChartPanel panel = new ChartPanel(chart);
-            JFrame frame = new JFrame("Epoch - MSE (Tek Topoloji)");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            JFrame frame = new JFrame("Epoch - MSE (Momentumsuz)");
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.setContentPane(panel);
             frame.pack();
             frame.setLocationRelativeTo(null);
@@ -112,5 +120,20 @@ public class TrainEpochGoster {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // Dosyadan topoloji değerini oku
+    private static int loadTopologyFromFile(String filename) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filename));
+            String line = br.readLine();
+            br.close();
+            if (line != null && !line.trim().isEmpty()) {
+                return Integer.parseInt(line.trim());
+            }
+        } catch (Exception e) {
+            // Dosya yoksa varsayılan değer kullanılacak
+        }
+        return -1; // Dosya bulunamadı
     }
 }

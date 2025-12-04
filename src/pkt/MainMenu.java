@@ -11,11 +11,30 @@ public class MainMenu {
 
     // 10 denemelik analizlerden seçilen en iyi topolojiler
     private static final int INPUT_NEURONS = 3;
-    private static final int HIDDEN_NEURONS_MOMENTUMLU = 20;  // 3-20-1
-    private static final int HIDDEN_NEURONS_MOMENTUMSUZ = 12; // 3-12-1
+    private static int HIDDEN_NEURONS_MOMENTUMLU = 20;  // Varsayılan: 3-20-1
+    private static int HIDDEN_NEURONS_MOMENTUMSUZ = 12; // Varsayılan: 3-12-1
     private static final int OUTPUT_NEURONS = 1;
 
     public static void main(String[] args) {
+        System.out.println("=== Sinir Ağı Uygulaması ===");
+        System.out.println("En iyi topolojiler hesaplanıyor...\n");
+        
+        // Otomatik olarak en iyi topolojileri bul (detayları gösterme)
+        int bestMomentumlu = TrainTestMomentumlu.findBestTopology(false);
+        if (bestMomentumlu > 0) {
+            HIDDEN_NEURONS_MOMENTUMLU = bestMomentumlu;
+        }
+        
+        int bestMomentumsuz = TrainTestMomentumsuz.findBestTopology(false);
+        if (bestMomentumsuz > 0) {
+            HIDDEN_NEURONS_MOMENTUMSUZ = bestMomentumsuz;
+        }
+        
+        System.out.println("Hesaplama tamamlandı!");
+        System.out.println("Momentumlu: 3-" + HIDDEN_NEURONS_MOMENTUMLU + "-1");
+        System.out.println("Momentumsuz: 3-" + HIDDEN_NEURONS_MOMENTUMSUZ + "-1");
+        System.out.println();
+        
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -163,4 +182,5 @@ public class MainMenu {
             e.printStackTrace();
         }
     }
+
 }

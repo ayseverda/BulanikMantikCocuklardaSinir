@@ -12,22 +12,29 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.*;
 
 public class TrainKFold {
 
-    // Momentumlu için en iyi topoloji: 3-20-1
     private static final int INPUT_NEURONS = 3;
-    private static final int HIDDEN_NEURONS = 20;
     private static final int OUTPUT_NEURONS = 1;
+    private static final int DEFAULT_HIDDEN = 20; // Varsayılan değer
 
     public static void main(String[] args) {
         try {
+            // En iyi momentumlu topolojiyi dosyadan oku
+            int hiddenNeurons = loadTopologyFromFile("best_topology_momentumlu.txt");
+            if (hiddenNeurons <= 0) {
+                hiddenNeurons = DEFAULT_HIDDEN; // Dosya yoksa varsayılan
+            }
+
             // Tüm veri setini kullan (4000 satır)
             DataSet full = TrainTestMomentumlu.loadDataset("dataset.csv");
 
             Scanner scanner = new Scanner(System.in);
-            System.out.print("K değerini giriniz (ör: 5 veya 10): ");
+            System.out.print("K değerini giriniz: ");
             int k = Integer.parseInt(scanner.nextLine());
 
             if (k < 2) {
@@ -48,7 +55,7 @@ public class TrainKFold {
             List<Double> foldTrainMseList = new ArrayList<>();
             List<Double> foldTestMseList  = new ArrayList<>();
 
-            System.out.println("\nK-Fold Cross Validation (K = " + k + ", momentumlu BP, topoloji: 3-20-1)");
+            System.out.println("\nK-Fold Cross Validation (K = " + k + ", momentumlu BP, topoloji: 3-" + hiddenNeurons + "-1)");
             System.out.println("Fold\tTrain MSE\tTest MSE");
 
             for (int fold = 0; fold < k; fold++) {
@@ -68,7 +75,7 @@ public class TrainKFold {
 
                 // Yeni ağ
                 MultiLayerPerceptron net =
-                        new MultiLayerPerceptron(INPUT_NEURONS, HIDDEN_NEURONS, OUTPUT_NEURONS);
+                        new MultiLayerPerceptron(INPUT_NEURONS, hiddenNeurons, OUTPUT_NEURONS);
 
                 MomentumBackpropagation rule = new MomentumBackpropagation();
                 rule.setLearningRate(0.1);
@@ -106,7 +113,7 @@ public class TrainKFold {
             }
 
             JFreeChart chart = ChartFactory.createBarChart(
-                    "K-Fold Sonuçları (Momentumlu, 3-" + HIDDEN_NEURONS + "-1)",
+                    "K-Fold Sonuçları (Momentumlu, 3-" + hiddenNeurons + "-1)",
                     "Fold",
                     "MSE",
                     dataset,
@@ -114,12 +121,27 @@ public class TrainKFold {
                     true, true, false
             );
 
-            ChartFrame frame = new ChartFrame("K-Fold MSE Grafiği", chart);
+            ChartFrame frame = new ChartFrame("K-Fold MSE Grafiği (Momentumlu)", chart);
             frame.pack();
             frame.setVisible(true);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // Dosyadan topoloji değerini oku
+    private static int loadTopologyFromFile(String filename) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filename));
+            String line = br.readLine();
+            br.close();
+            if (line != null && !line.trim().isEmpty()) {
+                return Integer.parseInt(line.trim());
+            }
+        } catch (Exception e) {
+            // Dosya yoksa varsayılan değer kullanılacak
+        }
+        return -1; // Dosya bulunamadı
     }
 }
