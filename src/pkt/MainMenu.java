@@ -5,34 +5,40 @@ import org.neuroph.nnet.MultiLayerPerceptron;
 import org.neuroph.nnet.learning.BackPropagation;
 import org.neuroph.nnet.learning.MomentumBackpropagation;
 
+import java.text.DecimalFormat;
 import java.util.Scanner;
 
 public class MainMenu {
 
     // 10 denemelik analizlerden seçilen en iyi topolojiler
     private static final int INPUT_NEURONS = 3;
-    private static int HIDDEN_NEURONS_MOMENTUMLU = 20;  // Varsayılan: 3-20-1
-    private static int HIDDEN_NEURONS_MOMENTUMSUZ = 12; // Varsayılan: 3-12-1
+    private static int HIDDEN_NEURONS_MOMENTUMLU;
+    private static int HIDDEN_NEURONS_MOMENTUMSUZ;
     private static final int OUTPUT_NEURONS = 1;
 
     public static void main(String[] args) {
         System.out.println("=== Sinir Ağı Uygulaması ===");
-        System.out.println("En iyi topolojiler hesaplanıyor...\n");
+        System.out.println("En iyi topolojiler hesaplanıyor...");
         
         // Otomatik olarak en iyi topolojileri bul (detayları gösterme)
         int bestMomentumlu = TrainTestMomentumlu.findBestTopology(false);
-        if (bestMomentumlu > 0) {
-            HIDDEN_NEURONS_MOMENTUMLU = bestMomentumlu;
+        if (bestMomentumlu <= 0) {
+            System.out.println("HATA: Momentumlu topoloji seçilemedi!");
+            return;
         }
+        HIDDEN_NEURONS_MOMENTUMLU = bestMomentumlu;
         
         int bestMomentumsuz = TrainTestMomentumsuz.findBestTopology(false);
-        if (bestMomentumsuz > 0) {
-            HIDDEN_NEURONS_MOMENTUMSUZ = bestMomentumsuz;
+        if (bestMomentumsuz <= 0) {
+            System.out.println("HATA: Momentumsuz topoloji seçilemedi!");
+            return;
         }
+        HIDDEN_NEURONS_MOMENTUMSUZ = bestMomentumsuz;
         
         System.out.println("Hesaplama tamamlandı!");
         System.out.println("Momentumlu: 3-" + HIDDEN_NEURONS_MOMENTUMLU + "-1");
         System.out.println("Momentumsuz: 3-" + HIDDEN_NEURONS_MOMENTUMSUZ + "-1");
+      
         System.out.println();
         
         Scanner scanner = new Scanner(System.in);
@@ -88,8 +94,11 @@ public class MainMenu {
     // 1- Ağı Eğit ve Test Et (Momentumlu)
     private static void trainTestMomentumluOnce() {
         try {
-            DataSet training = TrainTestMomentumlu.loadDataset("training.csv");
-            DataSet test = TrainTestMomentumlu.loadDataset("test.csv");
+            // Ödev gereksinimi: Her seferinde rastgele %75-%25 bölme
+            DataSet full = TrainTestMomentumlu.loadDataset("dataset.csv");
+            DataSet[] split = TrainTestMomentumlu.splitDatasetRandomly(full);
+            DataSet training = split[0];
+            DataSet test = split[1];
 
             System.out.println("Seçilen topoloji (momentumlu): 3-" 
                     + HIDDEN_NEURONS_MOMENTUMLU + "-1");
@@ -100,22 +109,33 @@ public class MainMenu {
                     new MultiLayerPerceptron(INPUT_NEURONS, HIDDEN_NEURONS_MOMENTUMLU, OUTPUT_NEURONS);
 
             MomentumBackpropagation rule = new MomentumBackpropagation();
-            rule.setLearningRate(0.1);
-            rule.setMomentum(0.7);
-            rule.setMaxIterations(300);
+            rule.setLearningRate(0.05); // Daha düşük learning rate - daha hassas öğrenme
+            rule.setMomentum(0.8); // Biraz daha yüksek momentum - daha stabil
+            rule.setMaxIterations(2000); // Daha fazla epoch
+            rule.setMaxError(0.00001); // Çok düşük error threshold
 
             network.setLearningRule(rule);
 
             System.out.println("Ağ eğitiliyor (momentumlu)...");
+            System.out.println("Eğitim veri seti: " + training.size() + " örnek");
+            System.out.println("Maksimum epoch: " + rule.getMaxIterations());
+            
+            long startTime = System.currentTimeMillis();
             network.learn(training);
+            long endTime = System.currentTimeMillis();
+            
+            int actualEpochs = rule.getCurrentIteration();
+            System.out.println("Gerçekleşen epoch sayısı: " + actualEpochs);
+            System.out.println("Eğitim süresi: " + (endTime - startTime) + " ms");
             System.out.println("Eğitim tamamlandı.");
             System.out.println("---------------------------------------");
 
             double trainError = rule.getTotalNetworkError();
             double testError = TrainTestMomentumlu.testNetwork(network, test);
 
-            System.out.println("Eğitim Hatası (MSE): " + trainError);
-            System.out.println("Test Hatası (MSE): " + testError);
+            DecimalFormat df = new DecimalFormat("0.0000000000000000");
+            System.out.println("Eğitim Hatası (MSE): " + df.format(trainError));
+            System.out.println("Test Hatası (MSE): " + df.format(testError));
             System.out.println();
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,8 +145,11 @@ public class MainMenu {
     // 2- Ağı Eğit ve Test Et (Momentumsuz)
     private static void trainTestMomentumsuzOnce() {
         try {
-            DataSet training = TrainTestMomentumlu.loadDataset("training.csv");
-            DataSet test = TrainTestMomentumlu.loadDataset("test.csv");
+            // Ödev gereksinimi: Her seferinde rastgele %75-%25 bölme
+            DataSet full = TrainTestMomentumlu.loadDataset("dataset.csv");
+            DataSet[] split = TrainTestMomentumlu.splitDatasetRandomly(full);
+            DataSet training = split[0];
+            DataSet test = split[1];
 
             System.out.println("Seçilen topoloji (momentumsuz): 3-" 
                     + HIDDEN_NEURONS_MOMENTUMSUZ + "-1");
@@ -137,21 +160,32 @@ public class MainMenu {
                     new MultiLayerPerceptron(INPUT_NEURONS, HIDDEN_NEURONS_MOMENTUMSUZ, OUTPUT_NEURONS);
 
             BackPropagation rule = new BackPropagation();
-            rule.setLearningRate(0.1);
-            rule.setMaxIterations(300);
+            rule.setLearningRate(0.05); // Daha düşük learning rate - daha hassas öğrenme
+            rule.setMaxIterations(2000); // Daha fazla epoch
+            rule.setMaxError(0.00001); // Çok düşük error threshold
 
             network.setLearningRule(rule);
 
             System.out.println("Ağ eğitiliyor (momentumsuz)...");
+            System.out.println("Eğitim veri seti: " + training.size() + " örnek");
+            System.out.println("Maksimum epoch: " + rule.getMaxIterations());
+            
+            long startTime = System.currentTimeMillis();
             network.learn(training);
+            long endTime = System.currentTimeMillis();
+            
+            int actualEpochs = rule.getCurrentIteration();
+            System.out.println("Gerçekleşen epoch sayısı: " + actualEpochs);
+            System.out.println("Eğitim süresi: " + (endTime - startTime) + " ms");
             System.out.println("Eğitim tamamlandı.");
             System.out.println("---------------------------------------");
 
             double trainError = rule.getTotalNetworkError();
             double testError = TrainTestMomentumlu.testNetwork(network, test);
 
-            System.out.println("Eğitim Hatası (MSE): " + trainError);
-            System.out.println("Test Hatası (MSE): " + testError);
+            DecimalFormat df = new DecimalFormat("0.0000000000000000");
+            System.out.println("Eğitim Hatası (MSE): " + df.format(trainError));
+            System.out.println("Test Hatası (MSE): " + df.format(testError));
             System.out.println();
         } catch (Exception e) {
             e.printStackTrace();

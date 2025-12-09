@@ -19,15 +19,19 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class TrainTestMomentumlu {
 
     public static void main(String[] args) {
         try {
-            // Eğitim ve test veri setlerini yükle
-            DataSet training = loadDataset("training.csv");
-            DataSet test = loadDataset("test.csv");
+            // Dataset'i yükle ve rastgele böl
+            DataSet full = loadDataset("dataset.csv");
+            DataSet[] split = splitDatasetRandomly(full);
+            DataSet training = split[0];
+            DataSet test = split[1];
 
             // 10 farklı topoloji (momentumlu)
             int[] hiddenNeuronsList = {3, 4, 5, 6, 7, 8, 10, 12, 15, 20};
@@ -44,9 +48,9 @@ public class TrainTestMomentumlu {
                 MultiLayerPerceptron net = new MultiLayerPerceptron(3, hidden, 1);
 
                 MomentumBackpropagation rule = new MomentumBackpropagation();
-                rule.setLearningRate(0.1);
-                rule.setMomentum(0.7);
-                rule.setMaxIterations(300);
+                rule.setLearningRate(0.05); // Daha düşük learning rate
+                rule.setMomentum(0.8); // Daha yüksek momentum
+                rule.setMaxIterations(2000); // Daha fazla epoch
 
                 // Epoch hatalarını kaydetmek için liste
                 List<Double> epochErrors = new ArrayList<>();
@@ -159,6 +163,26 @@ public class TrainTestMomentumlu {
         return totalError / count;
     }
 
+    // Dataset'i rastgele %75-%25 olarak böler
+    public static DataSet[] splitDatasetRandomly(DataSet full) {
+        List<DataSetRow> allRows = new ArrayList<>(full.getRows());
+        Collections.shuffle(allRows, new Random()); // Her seferinde farklı rastgele bölme
+        
+        int total = allRows.size();
+        int trainSize = (int) (total * 0.75);
+        
+        List<DataSetRow> trainRows = allRows.subList(0, trainSize);
+        List<DataSetRow> testRows = allRows.subList(trainSize, total);
+        
+        DataSet training = new DataSet(3, 1);
+        for (DataSetRow r : trainRows) training.add(r);
+        
+        DataSet test = new DataSet(3, 1);
+        for (DataSetRow r : testRows) test.add(r);
+        
+        return new DataSet[]{training, test};
+    }
+
     // En iyi topolojiyi dosyaya kaydet
     private static void saveBestTopology(String filename, int hiddenNeurons) {
         try {
@@ -173,8 +197,11 @@ public class TrainTestMomentumlu {
     // Grafik göstermeden sadece test yapıp en iyi topolojiyi bul ve kaydet (MainMenu için)
     public static int findBestTopology(boolean showProgress) {
         try {
-            DataSet training = loadDataset("training.csv");
-            DataSet test = loadDataset("test.csv");
+            // Dataset'i yükle ve rastgele böl
+            DataSet full = loadDataset("dataset.csv");
+            DataSet[] split = splitDatasetRandomly(full);
+            DataSet training = split[0];
+            DataSet test = split[1];
 
             int[] hiddenNeuronsList = {3, 4, 5, 6, 7, 8, 10, 12, 15, 20};
 
@@ -189,9 +216,10 @@ public class TrainTestMomentumlu {
                 MultiLayerPerceptron net = new MultiLayerPerceptron(3, hidden, 1);
 
                 MomentumBackpropagation rule = new MomentumBackpropagation();
-                rule.setLearningRate(0.1);
-                rule.setMomentum(0.7);
-                rule.setMaxIterations(300);
+                rule.setLearningRate(0.05); // Daha düşük learning rate
+                rule.setMomentum(0.8); // Daha yüksek momentum
+                rule.setMaxIterations(100); // Topoloji seçimi için çok daha az epoch (hızlı karşılaştırma)
+                rule.setMaxError(0.0001); // Early stopping'i geciktirmek için çok düşük hata eşiği
 
                 net.setLearningRule(rule);
 

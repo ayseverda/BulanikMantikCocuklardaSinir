@@ -34,8 +34,11 @@ public class TrainEpochGoster {
                 hiddenNeurons = DEFAULT_HIDDEN; // Dosya yoksa varsayılan
             }
 
-            DataSet training = TrainTestMomentumlu.loadDataset("training.csv");
-            DataSet test = TrainTestMomentumlu.loadDataset("test.csv");
+            // Dataset'i yükle ve rastgele böl
+            DataSet full = TrainTestMomentumlu.loadDataset("dataset.csv");
+            DataSet[] split = TrainTestMomentumlu.splitDatasetRandomly(full);
+            DataSet training = split[0];
+            DataSet test = split[1];
 
             System.out.println("Epoch bazlı eğitim (momentumsuz BP) başlatılıyor...");
             System.out.println("Kullanılan topoloji: 3-" + hiddenNeurons + "-1");
@@ -46,8 +49,9 @@ public class TrainEpochGoster {
                     new MultiLayerPerceptron(INPUT_NEURONS, hiddenNeurons, OUTPUT_NEURONS);
 
             BackPropagation rule = new BackPropagation();
-            rule.setLearningRate(0.1);
-            rule.setMaxIterations(100);   
+            rule.setLearningRate(0.05); // Daha düşük learning rate
+            rule.setMaxIterations(2000); // Daha fazla epoch
+            rule.setMaxError(0.00001); // Çok düşük error threshold   
 
             List<Double> trainErrors = new ArrayList<>();
             List<Double> testErrors  = new ArrayList<>();

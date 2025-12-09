@@ -14,6 +14,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class TrainKFold {
@@ -78,9 +79,9 @@ public class TrainKFold {
                         new MultiLayerPerceptron(INPUT_NEURONS, hiddenNeurons, OUTPUT_NEURONS);
 
                 MomentumBackpropagation rule = new MomentumBackpropagation();
-                rule.setLearningRate(0.1);
-                rule.setMomentum(0.7);
-                rule.setMaxIterations(300);
+                rule.setLearningRate(0.05); // Daha düşük learning rate
+                rule.setMomentum(0.8); // Daha yüksek momentum
+                rule.setMaxIterations(2000); // Daha fazla epoch
 
                 net.setLearningRule(rule);
                 net.learn(trainSet);
@@ -101,8 +102,9 @@ public class TrainKFold {
             double avgTrain = sumTrainMse / k;
             double avgTest  = sumTestMse  / k;
 
-            System.out.println("\nOrtalama Eğitim Hatası (MSE): " + avgTrain);
-            System.out.println("Ortalama Test Hatası (MSE):   " + avgTest);
+            DecimalFormat df = new DecimalFormat("0.0000000000000000");
+            System.out.println("\nOrtalama Eğitim Hatası (MSE): " + df.format(avgTrain));
+            System.out.println("Ortalama Test Hatası (MSE):   " + df.format(avgTest));
 
             // >>> K-FOLD GRAFİĞİ
             DefaultCategoryDataset dataset = new DefaultCategoryDataset();

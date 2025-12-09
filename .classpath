@@ -13,5 +13,7 @@
 	<classpathentry kind="lib" path="Lib/Framework/libs/visrec-api-1.0.0.jar"/>
 	<classpathentry kind="lib" path="Lib/Framework/neuroph-contrib-2.98.jar"/>
 	<classpathentry kind="lib" path="Lib/Framework/neuroph-core-2.98.jar"/>
+	<classpathentry kind="lib" path="C:/Users/aysee/eclipse-workspace/bulanikcocuklardasinir/Lib/jFuzzyLogic.jar"/>
+	<classpathentry kind="lib" path="C:/Users/aysee/eclipse-workspace/bulanikcocuklardasinir/Lib/neuroph-2.98.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -21,9 +21,11 @@ public class TrainTestMomentumsuz {
 
     public static void main(String[] args) {
         try {
-            // Eğitim ve test veri setlerini yükle
-            DataSet training = TrainTestMomentumlu.loadDataset("training.csv");
-            DataSet test = TrainTestMomentumlu.loadDataset("test.csv");
+            // Dataset'i yükle ve rastgele böl
+            DataSet full = TrainTestMomentumlu.loadDataset("dataset.csv");
+            DataSet[] split = TrainTestMomentumlu.splitDatasetRandomly(full);
+            DataSet training = split[0];
+            DataSet test = split[1];
 
             // 10 farklı topoloji
             int[] hiddenNeuronsList = {3, 4, 5, 6, 7, 8, 10, 12, 15, 20};
@@ -40,8 +42,8 @@ public class TrainTestMomentumsuz {
                 MultiLayerPerceptron net = new MultiLayerPerceptron(3, hidden, 1);
 
                 BackPropagation rule = new BackPropagation();
-                rule.setLearningRate(0.1);
-                rule.setMaxIterations(300);
+                rule.setLearningRate(0.05); // Daha düşük learning rate
+                rule.setMaxIterations(2000); // Daha fazla epoch
 
                 // Epoch hatalarını kaydetmek için liste
                 List<Double> epochErrors = new ArrayList<>();
@@ -125,8 +127,11 @@ public class TrainTestMomentumsuz {
     // Grafik göstermeden sadece test yapıp en iyi topolojiyi bul ve kaydet (MainMenu için)
     public static int findBestTopology(boolean showProgress) {
         try {
-            DataSet training = TrainTestMomentumlu.loadDataset("training.csv");
-            DataSet test = TrainTestMomentumlu.loadDataset("test.csv");
+            // Dataset'i yükle ve rastgele böl
+            DataSet full = TrainTestMomentumlu.loadDataset("dataset.csv");
+            DataSet[] split = TrainTestMomentumlu.splitDatasetRandomly(full);
+            DataSet training = split[0];
+            DataSet test = split[1];
 
             int[] hiddenNeuronsList = {3, 4, 5, 6, 7, 8, 10, 12, 15, 20};
 
@@ -141,8 +146,9 @@ public class TrainTestMomentumsuz {
                 MultiLayerPerceptron net = new MultiLayerPerceptron(3, hidden, 1);
 
                 BackPropagation rule = new BackPropagation();
-                rule.setLearningRate(0.1);
-                rule.setMaxIterations(300);
+                rule.setLearningRate(0.05); // Daha düşük learning rate
+                rule.setMaxIterations(100); // Daha fazla epoch
+                rule.setMaxError(0.0001); // Early stopping'i geciktirmek için çok düşük hata eşiği
 
                 net.setLearningRule(rule);
 

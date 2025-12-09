@@ -35,10 +35,11 @@ public class TrainTekliTestMomentumlu {
                 hiddenNeurons = DEFAULT_HIDDEN; // Dosya yoksa varsayılan
             }
 
-            // Training.csv'yi kullanıyoruz; DatasetSplitter ile dataset'in %75'i 
-            // rastgele seçilerek oluşturulmuştu.
-            DataSet training = TrainTestMomentumlu.loadDataset("training.csv");
-            DataSet test = TrainTestMomentumlu.loadDataset("test.csv");
+            // Dataset'i yükle ve rastgele böl
+            DataSet full = TrainTestMomentumlu.loadDataset("dataset.csv");
+            DataSet[] split = TrainTestMomentumlu.splitDatasetRandomly(full);
+            DataSet training = split[0];
+            DataSet test = split[1];
 
             // Epoch bazlı hata listeleri
             List<Double> trainMseList = new ArrayList<>();
@@ -53,9 +54,10 @@ public class TrainTekliTestMomentumlu {
                     new MultiLayerPerceptron(INPUT_NEURONS, hiddenNeurons, OUTPUT_NEURONS);
 
             MomentumBackpropagation rule = new MomentumBackpropagation();
-            rule.setLearningRate(0.1);
-            rule.setMomentum(0.7);
-            rule.setMaxIterations(300);
+            rule.setLearningRate(0.05); // Daha düşük learning rate
+            rule.setMomentum(0.8); // Daha yüksek momentum
+            rule.setMaxIterations(2000); // Daha fazla epoch
+            rule.setMaxError(0.00001); // Çok düşük error threshold
 
             network.setLearningRule(rule);
 
